@@ -1,6 +1,8 @@
+use regex::Regex;
+
 /// Struct to represent Pawn in chess game
 #[derive(Copy, Clone)]
-pub struct Pawn
+struct Pawn
 {
     is_white:bool
 }
@@ -19,13 +21,12 @@ impl Pawn
         match self.is_white {
             true => { print!("W"); }
             false => { print!("B"); }
-            _ => { print!("*"); }
-          }
+        }
     }
 }
 
 /// Struct to reprensent board in chess game
-pub struct Board
+struct Board
 {
     /// cases[file(A-H)][rank(1-8)] -- direct access [0-7][0-7] of course
     pub cases: [[Option<Pawn>; 8]; 8]
@@ -66,9 +67,11 @@ impl Board
 
     pub fn print(&self)
     {
-        for i_file in 0..8 //file in cases
+        println!("    A B C D E F G H\n");
+        for i_rank in 0..8 //rank in cases
         {
-            for i_rank in 0..8 //rank in file
+            print!("{}   ", i_rank + 1);
+            for i_file in 0..8 //file in rank
             {
                 match self.cases[i_file][i_rank]
                 {
@@ -85,5 +88,25 @@ impl Board
 /// Struct to manage chess game
 pub struct Game
 { 
+    board:Board,
+}
 
+impl Game
+{
+    pub fn new() -> Game
+    {
+        Game {board:Board{cases:[[None; 8]; 8]}}
+    }
+
+    pub fn move_from_to(&self, from:&str, to:&str)
+    {
+        // A: Check "from" is within A1<->H8
+        // B: Check there is a piece on "from"
+        // C: Check that for the piece at "from" the move to "to" is authorized
+        // D: Move the option from "from" to "to"
+            // --> if the case "to" wasn't empty, print the piece that was taken
+            // --> Check if there is a check or a mate
+        let re = Regex::new(r"[a-hA-H][1-8]").unwrap();
+        println!("move_from_to(): from matches A1<->H8 {}", re.is_match(&from));
+    }
 }
