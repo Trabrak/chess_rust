@@ -1,5 +1,8 @@
 use regex::Regex;
 
+#[path="util.rs"]
+mod util;
+
 /// Struct to represent Pawn in chess game
 #[derive(Copy, Clone)]
 struct Pawn
@@ -101,12 +104,22 @@ impl Game
     pub fn move_from_to(&self, from:&str, to:&str)
     {
         // A: Check "from" is within A1<->H8
+
         // B: Check there is a piece on "from"
         // C: Check that for the piece at "from" the move to "to" is authorized
         // D: Move the option from "from" to "to"
             // --> if the case "to" wasn't empty, print the piece that was taken
             // --> Check if there is a check or a mate
         let re = Regex::new(r"[a-hA-H][1-8]").unwrap();
-        println!("move_from_to(): from matches A1<->H8 {}", re.is_match(&from));
+        //println!("move_from_to(): from matches A1<->H8 {}", re.is_match(&from));
+        if !re.is_match(&from)
+        {
+            println!("Your input \"from\"={} is not within A1 && H8 ", &from);
+        }
+        else
+        {
+            let array_entries = util::convert_board_pos_to_array_entry(&from);
+            println!("For {}, array entries are {} - {}", &from, array_entries[0], array_entries[1]);
+        }
     }
 }
