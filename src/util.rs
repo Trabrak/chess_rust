@@ -6,7 +6,7 @@ pub fn convert_board_pos_to_array_entry(file_and_rank:&str) -> [usize; 2]
     let file = to_upper.chars().nth(0).unwrap();
     let rank = to_upper.chars().nth(1).unwrap();
     let mut file_entry:usize = 0;
-    let mut rank_entry:usize = (rank.to_digit(10).unwrap() - 1) as usize ;
+    let rank_entry:usize = (rank.to_digit(10).unwrap() - 1) as usize ;
     match file
     {
         'A' => {file_entry = 0;}

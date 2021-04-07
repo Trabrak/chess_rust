@@ -3,27 +3,39 @@ use regex::Regex;
 #[path="util.rs"]
 mod util;
 
-/// Struct to represent Pawn in chess game
-#[derive(Copy, Clone)]
-struct Pawn
+mod Piece
 {
-    is_white:bool
-}
-
-impl Pawn 
-{
-    pub fn how_can_i_move()
+    /// Struct to represent Pawn in chess game
+    #[derive(Copy, Clone)] 
+    pub enum Type
     {
-        println!("I am a pawn, I can move forward to the unoccupied square immediately \
-        in front of me on the same file, or on my first move I can advance two squares \
-        along the same file ");
+        PAWN,
+        KING
     }
 
-    pub fn print(&self)
+    /// Struct to represent Pawn in chess game
+    #[derive(Copy, Clone)]    
+    pub struct Piece
     {
-        match self.is_white {
-            true => { print!("W"); }
-            false => { print!("B"); }
+        pub is_white:bool,
+        pub r#type:Type
+    }
+
+    impl Piece 
+    {
+        pub fn how_can_i_move()
+        {
+            println!("I am a pawn, I can move forward to the unoccupied square immediately \
+            in front of me on the same file, or on my first move I can advance two squares \
+            along the same file ");
+        }
+    
+        pub fn print(&self)
+        {
+            match self.is_white {
+                true => { print!("W"); }
+                false => { print!("B"); }
+            }
         }
     }
 }
@@ -32,7 +44,7 @@ impl Pawn
 struct Board
 {
     /// cases[file(A-H)][rank(1-8)] -- direct access [0-7][0-7] of course
-    pub cases: [[Option<Pawn>; 8]; 8]
+    pub cases: [[Option<Piece::Piece>; 8]; 8]
 }
 
 impl Board
@@ -44,7 +56,7 @@ impl Board
         {
             for i_rank in 0..2 //rank in file
             {
-                self.cases[i_file][i_rank] = Some(Pawn{is_white:true}); 
+                self.cases[i_file][i_rank] = Some(Piece::Piece{is_white:true, r#type:Piece::Type::PAWN});
             }
         }
 
@@ -52,7 +64,7 @@ impl Board
         {
             for i_rank in 6..8 //rank in file
             {
-                self.cases[i_file][i_rank] = Some(Pawn{is_white:false}); 
+                self.cases[i_file][i_rank] = Some(Piece::Piece{is_white:true, r#type:Piece::Type::PAWN}); 
             }
         }
     }
@@ -78,7 +90,7 @@ impl Board
             {
                 match self.cases[i_file][i_rank]
                 {
-                    Some(pawn) => { pawn.print(); }
+                    Some(piece) => { piece.print(); }
                     None => { print!("*") }
                 }
                 print!(" ");
@@ -102,24 +114,31 @@ impl Game
     }
 
     pub fn move_from_to(&self, from:&str, to:&str)
-    {
-        // A: Check "from" is within A1<->H8
-
-        // B: Check there is a piece on "from"
-        // C: Check that for the piece at "from" the move to "to" is authorized
-        // D: Move the option from "from" to "to"
-            // --> if the case "to" wasn't empty, print the piece that was taken
-            // --> Check if there is a check or a mate
+    {             
         let re = Regex::new(r"[a-hA-H][1-8]").unwrap();
         //println!("move_from_to(): from matches A1<->H8 {}", re.is_match(&from));
         if !re.is_match(&from)
         {
+            // A: Check "from" is within A1<->H8
             println!("Your input \"from\"={} is not within A1 && H8 ", &from);
         }
         else
         {
             let array_entries = util::convert_board_pos_to_array_entry(&from);
-            println!("For {}, array entries are {} - {}", &from, array_entries[0], array_entries[1]);
+            //println!("For {}, array entries are {} - {}", &from, array_entries[0], array_entries[1]);
+            if self.board.cases[array_entries[0]][array_entries[1]].is_some()
+            {
+                // do stuff
+                // C: Check that for the piece at "from" the move to "to" is authorized
+                // D: Move the option from "from" to "to"
+                    // --> if the case "to" wasn't empty, print the piece that was taken
+                    // --> Check if there is a check or a mate
+            }
+            else
+            {
+                // B: Check there is a piece on "from"
+                println!("There is no piece on {}", &from);
+            }
         }
     }
 }
