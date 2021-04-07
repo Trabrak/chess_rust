@@ -3,7 +3,7 @@ use regex::Regex;
 #[path="util.rs"]
 mod util;
 
-mod Piece
+mod piece
 {
     /// Struct to represent Pawn in chess game
     #[derive(Copy, Clone)] 
@@ -17,8 +17,8 @@ mod Piece
     #[derive(Copy, Clone)]    
     pub struct Piece
     {
-        pub is_white:bool,
-        pub r#type:Type
+        is_white:bool,
+        r#type:Type
     }
 
     impl Piece 
@@ -37,6 +37,11 @@ mod Piece
                 false => { print!("B"); }
             }
         }
+
+        pub fn new_pawn() -> Piece
+        {
+            Piece{is_white:true, r#type:Type::PAWN}
+        }
     }
 }
 
@@ -44,7 +49,7 @@ mod Piece
 struct Board
 {
     /// cases[file(A-H)][rank(1-8)] -- direct access [0-7][0-7] of course
-    pub cases: [[Option<Piece::Piece>; 8]; 8]
+    pub cases: [[Option<piece::Piece>; 8]; 8]
 }
 
 impl Board
@@ -56,7 +61,7 @@ impl Board
         {
             for i_rank in 0..2 //rank in file
             {
-                self.cases[i_file][i_rank] = Some(Piece::Piece{is_white:true, r#type:Piece::Type::PAWN});
+                self.cases[i_file][i_rank] = Some(piece::Piece::new_pawn());
             }
         }
 
@@ -64,7 +69,7 @@ impl Board
         {
             for i_rank in 6..8 //rank in file
             {
-                self.cases[i_file][i_rank] = Some(Piece::Piece{is_white:true, r#type:Piece::Type::PAWN}); 
+                self.cases[i_file][i_rank] = Some(piece::Piece::new_pawn()); 
             }
         }
     }
