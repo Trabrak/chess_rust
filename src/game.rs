@@ -27,6 +27,16 @@ mod piece
 
     impl Piece 
     {
+        pub fn is_white(&self) -> bool
+        {
+            return self.is_white;
+        }
+
+        pub fn my_type(&self) -> Type
+        {
+            return self.p_type;
+        }
+
         pub fn description(&self)
         {
             match self.p_type
@@ -50,7 +60,7 @@ mod piece
 
         pub fn new_piece(white:bool, piece_type:Type) -> Piece
         {
-            Piece{is_white:true, p_type:piece_type}
+            Piece{is_white:white, p_type:piece_type}
         }
     }
 }
@@ -186,5 +196,20 @@ impl Game
                 println!("There is no piece on {}", &from);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod test
+{
+    use super::*;
+    #[test]
+    fn check_piece_color() 
+    {
+        let piece1 = piece::Piece::new_piece(true, piece::Type::Pawn);
+        let piece2 = piece::Piece::new_piece(false, piece::Type::Pawn);
+
+        assert_eq!(piece1.is_white(), true);
+        assert_eq!(piece2.is_white(), false);
     }
 }
