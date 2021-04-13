@@ -37,16 +37,16 @@ mod piece
             return self.p_type;
         }
 
-        pub fn description(&self)
+        pub fn description(&self) -> &str
         {
             match self.p_type
             {
-                Type::Pawn => {println!("I am a pawn, I can move forward to the unoccupied square immediately in front of me on the same file, or on my first move I can advance two squares along the same file ");}
-                Type::King => { println!("I move one square in any direction. I also have a special move called castling that involves also moving a rook.");}
-                Type::Queen => {println!("I combine the power of a rook and bishop and can move any number of squares along a rank, file, or diagonal, but cannot leap over other pieces.");}
-                Type::Rook => {println!(" Ican move any number of squares along a rank or file, but cannot leap over other pieces. Along with the king, I am involved during the king's castling move.");}
-                Type::Bishop => {println!("I can move any number of squares diagonally, but cannot leap over other pieces.");}
-                Type::Knight => {println!("I move to any of the closest square that are not on the same rank, file, or diagonal. (Thus the move forms an \"L\"-shape: two squares vertically and one square horizontally, or two squares horizontally and one square vertically.) The knight is the only piece that can leap over other pieces.");}
+                Type::Pawn => {"I am a pawn, I can move forward to the unoccupied square immediately in front of me on the same file, or on my first move I can advance two squares along the same file "}
+                Type::King => {"I move one square in any direction. I also have a special move called castling that involves also moving a rook."}
+                Type::Queen => {"I combine the power of a rook and bishop and can move any number of squares along a rank, file, or diagonal, but cannot leap over other pieces."}
+                Type::Rook => {"I can move any number of squares along a rank or file, but cannot leap over other pieces. Along with the king, I am involved during the king's castling move."}
+                Type::Bishop => {"I can move any number of squares diagonally, but cannot leap over other pieces."}
+                Type::Knight => {"I move to any of the closest square that are not on the same rank, file, or diagonal. (Thus the move forms an \"L\"-shape: two squares vertically and one square horizontally, or two squares horizontally and one square vertically.) The knight is the only piece that can leap over other pieces."}
             }            
         }
     
@@ -115,12 +115,12 @@ impl Board
         self.cases[5][7] = Some(piece::Piece::new_piece(false, piece::Type::Bishop)); 
 
         // Queens
-        self.cases[3][0] = Some(piece::Piece::new_piece(true, piece::Type::Bishop));
-        self.cases[3][7] = Some(piece::Piece::new_piece(true, piece::Type::Bishop)); 
+        self.cases[3][0] = Some(piece::Piece::new_piece(true, piece::Type::Queen));
+        self.cases[3][7] = Some(piece::Piece::new_piece(true, piece::Type::Queen)); 
 
         // Kings
-        self.cases[4][0] = Some(piece::Piece::new_piece(true, piece::Type::Bishop));
-        self.cases[4][7] = Some(piece::Piece::new_piece(true, piece::Type::Bishop));
+        self.cases[4][0] = Some(piece::Piece::new_piece(true, piece::Type::King));
+        self.cases[4][7] = Some(piece::Piece::new_piece(true, piece::Type::King));
     }
 
     /// From a given position, tells you where you can move your pawn.
@@ -228,5 +228,21 @@ mod test
         assert_eq!(piece4.my_type(), piece::Type::Knight);
         assert_eq!(piece5.my_type(), piece::Type::Bishop);
         assert_eq!(piece6.my_type(), piece::Type::Rook);
+    }
+
+    #[test]
+    fn check_descriptions() {
+        let piece1 = piece::Piece::new_piece(true, piece::Type::Pawn);
+        let piece2 = piece::Piece::new_piece(true, piece::Type::King);
+        let piece3 = piece::Piece::new_piece(true, piece::Type::Queen);
+        let piece4 = piece::Piece::new_piece(true, piece::Type::Knight);
+        let piece5 = piece::Piece::new_piece(true, piece::Type::Bishop);
+        let piece6 = piece::Piece::new_piece(true, piece::Type::Rook);
+        assert_ne!(piece1.description().len(), 0);
+        assert_ne!(piece2.description().len(), 0);
+        assert_ne!(piece3.description().len(), 0);
+        assert_ne!(piece4.description().len(), 0);
+        assert_ne!(piece5.description().len(), 0);
+        assert_ne!(piece6.description().len(), 0);
     }
 }
