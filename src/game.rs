@@ -6,7 +6,7 @@ mod util;
 mod piece
 {
     /// Struct to represent Pawn in chess game
-    #[derive(Copy, Clone)] 
+    #[derive(Copy, Clone, Debug, PartialEq, Eq)] 
     pub enum Type
     {
         Pawn,
@@ -211,5 +211,22 @@ mod test
 
         assert_eq!(piece1.is_white(), true);
         assert_eq!(piece2.is_white(), false);
+    }
+
+    #[test]
+    fn check_piece_type() {        
+        let piece1 = piece::Piece::new_piece(true, piece::Type::Pawn);
+        let piece2 = piece::Piece::new_piece(true, piece::Type::King);
+        let piece3 = piece::Piece::new_piece(true, piece::Type::Queen);
+        let piece4 = piece::Piece::new_piece(true, piece::Type::Knight);
+        let piece5 = piece::Piece::new_piece(true, piece::Type::Bishop);
+        let piece6 = piece::Piece::new_piece(true, piece::Type::Rook);
+
+        assert_eq!(piece1.my_type(), piece::Type::Pawn);
+        assert_eq!(piece2.my_type(), piece::Type::King);
+        assert_eq!(piece3.my_type(), piece::Type::Queen);
+        assert_eq!(piece4.my_type(), piece::Type::Knight);
+        assert_eq!(piece5.my_type(), piece::Type::Bishop);
+        assert_eq!(piece6.my_type(), piece::Type::Rook);
     }
 }
