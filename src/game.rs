@@ -31,12 +31,12 @@ mod piece
         {
             match self.p_type
             {
-                Pawn => {println!("I am a pawn, I can move forward to the unoccupied square immediately in front of me on the same file, or on my first move I can advance two squares along the same file ");}
-                King => { println!("I move one square in any direction. I also have a special move called castling that involves also moving a rook.");}
-                Queen => {println!("I combine the power of a rook and bishop and can move any number of squares along a rank, file, or diagonal, but cannot leap over other pieces.");}
-                Rook => {println!(" Ican move any number of squares along a rank or file, but cannot leap over other pieces. Along with the king, I am involved during the king's castling move.");}
-                Bishop => {println!("I can move any number of squares diagonally, but cannot leap over other pieces.");}
-                Knight => {println!("I move to any of the closest square that are not on the same rank, file, or diagonal. (Thus the move forms an \"L\"-shape: two squares vertically and one square horizontally, or two squares horizontally and one square vertically.) The knight is the only piece that can leap over other pieces.");}
+                Type::Pawn => {println!("I am a pawn, I can move forward to the unoccupied square immediately in front of me on the same file, or on my first move I can advance two squares along the same file ");}
+                Type::King => { println!("I move one square in any direction. I also have a special move called castling that involves also moving a rook.");}
+                Type::Queen => {println!("I combine the power of a rook and bishop and can move any number of squares along a rank, file, or diagonal, but cannot leap over other pieces.");}
+                Type::Rook => {println!(" Ican move any number of squares along a rank or file, but cannot leap over other pieces. Along with the king, I am involved during the king's castling move.");}
+                Type::Bishop => {println!("I can move any number of squares diagonally, but cannot leap over other pieces.");}
+                Type::Knight => {println!("I move to any of the closest square that are not on the same rank, file, or diagonal. (Thus the move forms an \"L\"-shape: two squares vertically and one square horizontally, or two squares horizontally and one square vertically.) The knight is the only piece that can leap over other pieces.");}
             }            
         }
     
@@ -64,6 +64,10 @@ struct Board
 
 impl Board
 {
+    pub fn new() -> Board
+    {
+        Board{cases:[[None; 8]; 8]}
+    }
     /// Put 16 White & 16 Black pieces on empty board 
     pub fn init(&mut self)
     {
@@ -110,7 +114,7 @@ impl Board
     }
 
     /// From a given position, tells you where you can move your pawn.
-    pub fn print_authorized_moves(&self, file:char, rank:u8)
+    /*pub fn print_authorized_moves(&self, file:char, rank:u8)
     {
         if file < 'A' || file > 'H' || rank < 1 || rank > 8
         {
@@ -118,7 +122,7 @@ impl Board
         }
 
         // TODO : Check piece on position, print available positions in consequence
-    }
+    }*/
 
     pub fn print(&self)
     {
@@ -150,7 +154,9 @@ impl Game
 {
     pub fn new() -> Game
     {
-        Game {board:Board{cases:[[None; 8]; 8]}}
+        let mut new_board = Board::new();
+        new_board.init(); 
+        Game{board:new_board}        
     }
 
     pub fn move_from_to(&self, from:&str, to:&str)
