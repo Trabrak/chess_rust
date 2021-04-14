@@ -69,7 +69,7 @@ mod piece
 struct Board
 {
     /// cases[file(A-H)][rank(1-8)] -- direct access [0-7][0-7] of course
-    pub cases: [[Option<piece::Piece>; 8]; 8]
+    cases: [[Option<piece::Piece>; 8]; 8]
 }
 
 impl Board
@@ -152,6 +152,16 @@ impl Board
             println!();
         }
     }
+
+    pub fn get_case_content(&self, file:usize, rank:usize) -> Option<piece::Piece>
+    {
+        return self.cases[file][rank]
+    }
+
+    pub fn set_case_content(&mut self, piece:Option<piece::Piece>, file:usize, rank:usize)
+    {
+        self.cases[file][rank] = piece;
+    }
 }
 
 /// Struct to manage chess game
@@ -169,7 +179,32 @@ impl Game
         Game{board:new_board}        
     }
 
-    pub fn move_from_to(&self, from:&str, to:&str)
+    
+    /// Function that takes a position, and a destination, and checks if it's possible
+    /// Considers that both of positions are realistic && self.board.is_some()
+    /// True if you can move, false if you can't
+    pub fn check_move(&self, from:&[usize; 2], to:&[usize; 2]) -> bool
+    {
+        /*
+        *   Type::Pawn => (On start = (0;1) (0;2), else (0;1)) + if enemy in (-1;+1) || (+1;+1) then possible
+        *   Type::King => +1;0, +1;+1, 0;+1, -1;+1, -1;0, -1;-1, 0;-1, +1;-1 => abs(mvt file) == 1 || abs(mvt rank) == 1 && still on board && no friendly piece there
+        *   Type::Queen => abs(file) == abs(rank) || abs(file|rank) == 0 && for each case in direction, there is no piece (excepted on dest if it's enemy)
+        *   Type::Rook => abs(file) == 0 XOR abs(rank) == 0 && for each case in direction, there is no piece (excepted on dest if it's enemy)
+        *   Type::Bishop => abs(file) == abs(rank) && for each case in direction, there is no piece (excepted on dest if it's enemy)
+        *   Type::Knight => (abs(file) == 2 && abs(rank) == 1) || (abs(file) == 1 && abs(rank) == 2) && dest = None || enemy 
+        */
+        match self.board.get_case_content(from[0], from[1]).unwrap().my_type()
+        {
+            piece::Type::Pawn => { return false }
+            piece::Type::King => { return false }
+            piece::Type::Queen => { return false }
+            piece::Type::Rook => { return false }
+            piece::Type::Bishop => { return false }
+            piece::Type::Knight => { return false }
+        }
+    }
+
+    pub fn move_from_to(&mut self, from:&str, to:&str)
     {             
         let re = Regex::new(r"[a-hA-H][1-8]").unwrap();
         //println!("move_from_to(): from matches A1<->H8 {}", re.is_match(&from));
@@ -180,15 +215,21 @@ impl Game
         }
         else
         {
-            let array_entries = util::convert_board_pos_to_array_entry(&from).unwrap();
+            let from_array_entries = util::convert_board_pos_to_array_entry(&from).unwrap();
+            let to_array_entries = util::convert_board_pos_to_array_entry(&to).unwrap();
             //println!("For {}, array entries are {} - {}", &from, array_entries[0], array_entries[1]);
-            if self.board.cases[array_entries[0]][array_entries[1]].is_some()
+            let piece_to_move = self.board.get_case_content(from_array_entries[0], from_array_entries[1]);
+            if piece_to_move.is_some()
             {
-                // do stuff
                 // C: Check that for the piece at "from" the move to "to" is authorized
-                // D: Move the option from "from" to "to"
-                    // --> if the case "to" wasn't empty, print the piece that was taken
-                    // --> Check if there is a check or a mate
+                if self.check_move(&from_array_entries, &to_array_entries)
+                {                    
+                    // D: Move the option from "from" to "to"
+                        // --> if the case "to" wasn't empty, print the piece that was taken
+                        // --> Check if there is a check or a mate
+                    self.board.set_case_content(piece_to_move, to_array_entries[0], to_array_entries[1]);
+                    self.board.set_case_content(None, from_array_entries[0], from_array_entries[1]);
+                }
             }
             else
             {
@@ -244,5 +285,19 @@ mod test
         assert_ne!(piece4.description().len(), 0);
         assert_ne!(piece5.description().len(), 0);
         assert_ne!(piece6.description().len(), 0);
+    }
+
+    #[test]
+    fn check_board_get_set() {
+        let mut board = Board::new();
+        let piece1 = piece::Piece::new_piece(true, piece::Type::Pawn);
+        board.set_case_content(Some(piece1), 0, 0);
+        let get_content1 = board.get_case_content(0, 0);
+        let get_content2 = board.get_case_content(0, 1);
+
+        assert!(get_content1.is_some());
+        assert!(get_content2.is_none());
+        assert_eq!(get_content1.unwrap().my_type(), piece::Type::Pawn);
+        assert_eq!(get_content1.unwrap().is_white(), true);
     }
 }
