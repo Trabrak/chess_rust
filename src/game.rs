@@ -193,9 +193,47 @@ impl Game
         *   Type::Bishop => abs(file) == abs(rank) && for each case in direction, there is no piece (excepted on dest if it's enemy)
         *   Type::Knight => (abs(file) == 2 && abs(rank) == 1) || (abs(file) == 1 && abs(rank) == 2) && dest = None || enemy 
         */
-        match self.board.get_case_content(from[0], from[1]).unwrap().my_type()
+        let piece_to_check = self.board.get_case_content(from[0], from[1]).unwrap();
+        match piece_to_check.my_type()
         {
-            piece::Type::Pawn => { return false }
+            piece::Type::Pawn => 
+            { 
+                let mut value = from[0] == to[0];
+                if (piece_to_check.is_white())
+                {
+                    // Move forward, no one is ahead
+                    value = value && (((from[1] == 1) && (to[1] == 3)) || (to[1] == from[1] + 1));
+                    for file in 2..(to[1] + 1) as usize
+                    {
+                        value = value && (self.board.get_case_content(to[0], file).is_none());
+                    }
+
+                    // Let's eat another piece in diag
+                    if !value
+                    {
+                        value = ((to[0] as i32 - from[0] as i32).abs() == 1) && ((to[1] - from[1]) == 1);
+                        value = value && self.board.get_case_content(to[0], to[1]).is_some() && !self.board.get_case_content(to[0], to[1]).unwrap().is_white();
+                    }
+                }
+                else
+                {
+                    // Move forward, no one is ahead
+                    value = value && (((from[1] == 6) && (to[1] == 4)) || (to[1] == from[1] - 1));
+                    eprintln!("should be ok{}", value);
+                    for file in to[1]..6 as usize
+                    {
+                        value = value && (self.board.get_case_content(to[0], file).is_none());
+                    }
+
+                    // Let's eat another piece in diag
+                    if !value
+                    {
+                        value = ((to[0] as i32 - from[0] as i32).abs() == 1) && ((from[1] - to[1]) == 1);
+                        value = value && self.board.get_case_content(to[0], to[1]).is_some() && self.board.get_case_content(to[0], to[1]).unwrap().is_white();
+                    }
+                }
+                return value
+            }
             piece::Type::King => { return false }
             piece::Type::Queen => { return false }
             piece::Type::Rook => { return false }
@@ -299,5 +337,21 @@ mod test
         assert!(get_content2.is_none());
         assert_eq!(get_content1.unwrap().my_type(), piece::Type::Pawn);
         assert_eq!(get_content1.unwrap().is_white(), true);
+    }
+
+    #[test]
+    fn check_pawn_move_white() {
+        let mut game = Game::new();
+        assert!(game.check_move(&[1,1], &[1,2]));
+        assert!(game.check_move(&[1,1], &[1,3]));   
+        assert!(!game.check_move(&[1,1], &[1,4]));           
+    }
+
+    #[test]
+    fn check_pawn_move_black() {
+        let mut game = Game::new();
+        assert!(game.check_move(&[6,6], &[6,5]));
+        assert!(game.check_move(&[6,6], &[6,4]));   
+        assert!(!game.check_move(&[6,6], &[6,3]));           
     }
 }
