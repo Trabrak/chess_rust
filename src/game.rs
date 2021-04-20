@@ -52,10 +52,21 @@ mod piece
     
         pub fn print(&self)
         {
+            let mut piece_print:String;
+            match self.my_type()
+            {
+                Type::Pawn => {piece_print = String::from("Pa");}
+                Type::King => {piece_print = String::from("Ki");}
+                Type::Queen => {piece_print = String::from("Qu");}
+                Type::Rook => {piece_print = String::from("Ro");}
+                Type::Bishop => {piece_print = String::from("Bi");}
+                Type::Knight => {piece_print = String::from("Kn");}
+            } 
             match self.is_white {
-                true => { print!("W"); }
-                false => { print!("B"); }
+                true => { piece_print += "W"; }
+                false => { piece_print += "B"; }
             }
+            print!("{}", piece_print);
         }
 
         pub fn new_piece(white:bool, piece_type:Type) -> Piece
@@ -97,30 +108,30 @@ impl Board
             }
         }
         // Rooks
-        self.cases[0][0] = Some(piece::Piece::new_piece(true, piece::Type::Rook));
-        self.cases[7][0] = Some(piece::Piece::new_piece(true, piece::Type::Rook)); 
-        self.cases[0][7] = Some(piece::Piece::new_piece(false, piece::Type::Rook)); 
-        self.cases[7][7] = Some(piece::Piece::new_piece(false, piece::Type::Rook)); 
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(true, piece::Type::Rook)), &"A1");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(true, piece::Type::Rook)), &"H1");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(false, piece::Type::Rook)), &"A8");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(false, piece::Type::Rook)), &"H8");
 
         // Knights
-        self.cases[1][0] = Some(piece::Piece::new_piece(true, piece::Type::Knight));
-        self.cases[6][0] = Some(piece::Piece::new_piece(true, piece::Type::Knight)); 
-        self.cases[1][7] = Some(piece::Piece::new_piece(false, piece::Type::Knight)); 
-        self.cases[6][7] = Some(piece::Piece::new_piece(false, piece::Type::Knight)); 
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(true, piece::Type::Knight)), &"B1");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(true, piece::Type::Knight)), &"G1");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(false, piece::Type::Knight)), &"B8");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(false, piece::Type::Knight)), &"G8");
 
         // Bishops
-        self.cases[2][0] = Some(piece::Piece::new_piece(true, piece::Type::Bishop));
-        self.cases[5][0] = Some(piece::Piece::new_piece(true, piece::Type::Bishop)); 
-        self.cases[2][7] = Some(piece::Piece::new_piece(false, piece::Type::Bishop)); 
-        self.cases[5][7] = Some(piece::Piece::new_piece(false, piece::Type::Bishop)); 
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(true, piece::Type::Bishop)), &"C1");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(true, piece::Type::Bishop)), &"F1");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(false, piece::Type::Bishop)), &"C8");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(false, piece::Type::Bishop)), &"F8");
 
         // Queens
-        self.cases[3][0] = Some(piece::Piece::new_piece(true, piece::Type::Queen));
-        self.cases[3][7] = Some(piece::Piece::new_piece(true, piece::Type::Queen)); 
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(true, piece::Type::Queen)), &"D1");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(false, piece::Type::Queen)), &"D8");
 
         // Kings
-        self.cases[4][0] = Some(piece::Piece::new_piece(true, piece::Type::King));
-        self.cases[4][7] = Some(piece::Piece::new_piece(true, piece::Type::King));
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(true, piece::Type::King)), &"E1");
+        self.set_case_content_by_str(Some(piece::Piece::new_piece(false, piece::Type::King)), &"E8");
     }
 
     /// From a given position, tells you where you can move your pawn.
@@ -136,7 +147,7 @@ impl Board
 
     pub fn print(&self)
     {
-        println!("    A B C D E F G H\n");
+        println!("     A   B   C   D   E   F   G   H\n");
         for i_rank in 0..8 //rank in cases
         {
             print!("{}   ", i_rank + 1);
@@ -145,7 +156,7 @@ impl Board
                 match self.cases[i_file][i_rank]
                 {
                     Some(piece) => { piece.print(); }
-                    None => { print!("*") }
+                    None => { print!("***") }
                 }
                 print!(" ");
             }
@@ -157,10 +168,30 @@ impl Board
     {
         return self.cases[file][rank]
     }
+    pub fn get_case_content_by_str(&self, file_and_rank:&str) -> Option<piece::Piece>
+    {
+        let file_rank_pos:Option<[usize; 2]> = util::convert_board_pos_to_array_entry(&file_and_rank);
+        if file_rank_pos.is_none()
+        {
+            return None
+        }
+        let unwrapped = file_rank_pos.unwrap();
+        return self.cases[unwrapped[0]][unwrapped[1]]
+    }
 
     pub fn set_case_content(&mut self, piece:Option<piece::Piece>, file:usize, rank:usize)
     {
         self.cases[file][rank] = piece;
+    }
+
+    pub fn set_case_content_by_str(&mut self, piece:Option<piece::Piece>, file_and_rank:&str)
+    {
+        let file_rank_pos:Option<[usize; 2]> = util::convert_board_pos_to_array_entry(&file_and_rank);
+        if file_rank_pos.is_some()
+        {
+            let unwrapped = file_rank_pos.unwrap();
+            self.cases[unwrapped[0]][unwrapped[1]] = piece;
+        }
     }
 }
 
@@ -179,6 +210,10 @@ impl Game
         Game{board:new_board}        
     }
 
+    pub fn print(&self)
+    {
+        self.board.print();
+    }
     
     /// Function that takes a position, and a destination, and checks if it's possible
     /// Considers that both of positions are realistic && self.board.is_some()
@@ -199,7 +234,7 @@ impl Game
             piece::Type::Pawn => 
             { 
                 let mut value = from[0] == to[0];
-                if (piece_to_check.is_white())
+                if piece_to_check.is_white()
                 {
                     // Move forward, no one is ahead
                     value = value && (((from[1] == 1) && (to[1] == 3)) || (to[1] == from[1] + 1));
@@ -341,7 +376,7 @@ mod test
 
     #[test]
     fn check_pawn_move_white() {
-        let mut game = Game::new();
+        let game = Game::new();
         assert!(game.check_move(&[1,1], &[1,2]));
         assert!(game.check_move(&[1,1], &[1,3]));   
         assert!(!game.check_move(&[1,1], &[1,4]));           
@@ -349,9 +384,50 @@ mod test
 
     #[test]
     fn check_pawn_move_black() {
-        let mut game = Game::new();
+        let game = Game::new();
         assert!(game.check_move(&[6,6], &[6,5]));
         assert!(game.check_move(&[6,6], &[6,4]));   
         assert!(!game.check_move(&[6,6], &[6,3]));           
+    }
+
+    #[test]
+    fn check_board_init() {
+        let mut board = Board::new();
+        board.init();
+        assert!(board.get_case_content(0, 0).is_some());
+        assert!(board.get_case_content(1, 0).is_some());
+        assert!(board.get_case_content(2, 0).is_some());
+        assert!(board.get_case_content(3, 0).is_some());
+        assert!(board.get_case_content(4, 0).is_some());
+        assert!(board.get_case_content(5, 0).is_some());
+        assert!(board.get_case_content(6, 0).is_some());
+        assert!(board.get_case_content(7, 0).is_some());
+
+        assert!(board.get_case_content(0, 1).is_some());
+        assert!(board.get_case_content(1, 1).is_some());
+        assert!(board.get_case_content(2, 1).is_some());
+        assert!(board.get_case_content(3, 1).is_some());
+        assert!(board.get_case_content(4, 1).is_some());
+        assert!(board.get_case_content(5, 1).is_some());
+        assert!(board.get_case_content(6, 1).is_some());
+        assert!(board.get_case_content(7, 1).is_some());
+        
+        assert!(board.get_case_content(0, 7).is_some());
+        assert!(board.get_case_content(1, 7).is_some());
+        assert!(board.get_case_content(2, 7).is_some());
+        assert!(board.get_case_content(3, 7).is_some());
+        assert!(board.get_case_content(4, 7).is_some());
+        assert!(board.get_case_content(5, 7).is_some());
+        assert!(board.get_case_content(6, 7).is_some());
+        assert!(board.get_case_content(7, 7).is_some());
+        
+        assert!(board.get_case_content(0, 7).is_some());
+        assert!(board.get_case_content(1, 7).is_some());
+        assert!(board.get_case_content(2, 7).is_some());
+        assert!(board.get_case_content(3, 7).is_some());
+        assert!(board.get_case_content(4, 7).is_some());
+        assert!(board.get_case_content(5, 7).is_some());
+        assert!(board.get_case_content(6, 7).is_some());
+        assert!(board.get_case_content(7, 7).is_some());
     }
 }
